@@ -47,7 +47,7 @@ Other functions are:
 Properties:
 
 * `.id`: unique identifier of the player
-* `.state`: define the type of timer (`paused`,`running`,`finished`)
+* `.state`: define the type of player (`paused`,`running`,`finished`)
 
 
 #### Adding/Removing Observers
