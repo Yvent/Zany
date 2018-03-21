@@ -6,6 +6,7 @@ a flexible class for AVPlayer
 
 
 
+[中文说明](https://juejin.im/post/5ab203f4518825556534632d) 
 ### Player
 
 #### Create a player
