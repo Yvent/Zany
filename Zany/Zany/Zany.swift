@@ -80,6 +80,7 @@ open class Zany: Equatable {
             if self.playerItem == newValue{ return }
             if let item = self.playerItem {
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: item)
+                
                 self.onPlayerItemRemoveObserver?(self,item)
             }
             self.playerItem = newValue

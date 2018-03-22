@@ -7,12 +7,12 @@
 //
 
 import UIKit
-
+import AVFoundation
 class ViewController: UIViewController {
     
     
     var playerInstance: Zany? = nil
-    
+    var playerItem: AVPlayerItem? = nil
     lazy var playBtn: UIButton = {
         let make = UIButton()
         make.backgroundColor = UIColor.red
@@ -32,10 +32,11 @@ class ViewController: UIViewController {
             print("\(zany.id)---\(progress)")
         }, ItemAddObserver: { (zany, item) -> (Void) in
             // add observer for AVPlayerItem
-            
-        }) { (zany, iten) -> (Void) in
+            item.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
+            self.playerItem = item
+        }) { (zany, item) -> (Void) in
             // remove observer
-            
+            item.removeObserver(self, forKeyPath: "status")
         }
         player.onStateChanged = { (_,state) in
             
@@ -67,9 +68,24 @@ class ViewController: UIViewController {
     @objc func didPlayBtn()  {
         
         if playerInstance?.state == .running {
-             playerInstance?.pause()
+            playerInstance?.pause()
         }else{
             playerInstance?.play()
+        }
+    }
+    
+    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        
+        if let item = object as? AVPlayerItem, let keyPath = keyPath, item == self.playerItem {
+            
+            if keyPath == "status"{
+                if item.status == AVPlayerItemStatus.failed {
+                    print("failed")
+                }else if item.status == AVPlayerItemStatus.readyToPlay {
+                    
+                    print("readyToPlay")
+                }
+            }
         }
     }
     
