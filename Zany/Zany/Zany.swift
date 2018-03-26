@@ -80,7 +80,6 @@ open class Zany: Equatable {
             if self.playerItem == newValue{ return }
             if let item = self.playerItem {
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: item)
-                
                 self.onPlayerItemRemoveObserver?(self,item)
             }
             self.playerItem = newValue
@@ -127,7 +126,6 @@ open class Zany: Equatable {
     ///
     /// - Parameters:
     ///   - url: url of the player
-    ///   - mode: mode of the player
     ///   - queue: queue in which the player should be executed; if `nil` a new queue is created automatically.
     ///   - observer: observer
     public init(url: URL,
@@ -136,7 +134,6 @@ open class Zany: Equatable {
                 ItemRemoveObserver: ItemObserver? = nil) {
         
         self.url = url
-//        self.mode = mode
         self.onPlayerItemAddObserver = ItemAddObserver
         self.onPlayerItemRemoveObserver = ItemRemoveObserver
         self.player = configurePlayer()
@@ -288,25 +285,32 @@ open class Zany: Equatable {
     
     /// remove all
     public func removeAll() {
-        
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self.playerItem)
-        self.observers.removeAll()
+
+        NotificationCenter.default.removeObserver(self)
         self.pause()
+        self.observers.removeAll()
         self.removeTimeObserver()
-        if let item = self.playerItem {
-            self.onPlayerItemRemoveObserver?(self,item)
-        }
+        self.setNillToAll()
+   
+    }
+    
+    
+    private func setNillToAll() {
+
         self.player = nil
         self.playerItem = nil
+        self.onPlayerItemAddObserver = nil
+        self.onPlayerItemRemoveObserver = nil
+        self.onStateChanged = nil
         self.timeObserver = nil
         
     }
-    
     public static func ==(lhs: Zany, rhs: Zany) -> Bool {
         return (lhs.id == rhs.id)
     }
     
     deinit {
+        print("deinit")
         self.removeAll()
     }
 }

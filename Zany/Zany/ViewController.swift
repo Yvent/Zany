@@ -27,16 +27,29 @@ class ViewController: UIViewController {
         playBtn.addTarget(self, action: #selector(ViewController.didPlayBtn), for: .touchUpInside)
         self.view.addSubview(playBtn)
         
+        initPlayer()
+        
+    }
+    
+    func initPlayer()  {
         guard let url = URL(string: "http://ws.stream.qqmusic.qq.com/C100001JITda3sTVCc.m4a?fromtag=38") else {return}
-        let player = Zany(url: url, observer: { (zany, progress) -> (Void) in
-            print("\(zany.id)---\(progress)")
-        }, ItemAddObserver: { (zany, item) -> (Void) in
-            // add observer for AVPlayerItem
-            item.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
-            self.playerItem = item
-        }) { (zany, item) -> (Void) in
+        let player = Zany(url: url, observer: { [weak self] (zany, progress) -> (Void) in
+            guard let unwrapped = self  else{ return }
+//            print("\(zany.id)---\(progress)")
+//            print("unwrapped.playerItem---\(String(describing: unwrapped.playerItem))")
+        
+            }, ItemAddObserver: { [weak self] (zany, item) -> (Void) in
+                // add observer for AVPlayerItem
+                          print("add observer ")
+                guard let unwrapped = self  else{ return }
+                item.addObserver(unwrapped, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
+                unwrapped.playerItem = item
+        }) { [weak self] (zany, item) -> (Void) in
             // remove observer
-            item.removeObserver(self, forKeyPath: "status")
+//            print("remove observer")
+            
+            guard let unwrapped = self  else{ return }
+            item.removeObserver(unwrapped, forKeyPath: "status")
         }
         player.onStateChanged = { (_,state) in
             
@@ -54,7 +67,6 @@ class ViewController: UIViewController {
         player.play()
         
         playerInstance = player
-        
     }
     
     override func didReceiveMemoryWarning() {
@@ -62,16 +74,19 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    deinit {
-        playerInstance?.removeAll()
-    }
     @objc func didPlayBtn()  {
         
-        if playerInstance?.state == .running {
-            playerInstance?.pause()
-        }else{
-            playerInstance?.play()
-        }
+         initPlayer()
+        
+//
+//        if playerInstance?.state == .running {
+//            playerInstance?.pause()
+//        }else{
+//            playerInstance?.play()
+//        }
+//
+        
+        
     }
     
     override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
